@@ -4,10 +4,12 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var session = require('express-session');
+const passport = require('passport');
 
 require('dotenv').config();
 // connect to the database with AFTER the config vars are processed
 require('./config/database');
+require('./config/passport');
 
 const indexRouter = require('./routes/index');
 const moviesRouter = require('./routes/movies');
@@ -30,6 +32,13 @@ app.use(session({
   resave: false,
   saveUninitialized: true
 }));
+// app.use(session({... code above
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(function (req, res, next) {
+  res.locals.user = req.user;
+  next();
+});
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
